@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NordicTrend Store</title>
+<style>
+body { font-family: Arial; margin:0; background:#f4f4f4; }
+
+header { background:#111; color:white; text-align:center; padding:25px; }
+
+.products { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:20px; padding:30px; }
+
+.product { background:white; border-radius:10px; padding:15px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+
+.product img { width:100%; border-radius:8px; }
+
+button { background:#2563eb; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer; transition:0.2s; }
+
+button:hover { opacity:0.9; }
+
+.cart { position:fixed; top:20px; right:20px; background:white; padding:10px 15px; border-radius:30px; box-shadow:0 3px 10px rgba(0,0,0,0.2); cursor:pointer; }
+
+.cartPanel { position:fixed; right:-400px; top:0; width:350px; height:100%; background:white; padding:20px; box-shadow:-4px 0 10px rgba(0,0,0,0.2); transition:0.3s; overflow:auto; }
+
+.cartPanel.open { right:0; }
+
+.checkout input { width:100%; padding:10px; margin-top:8px; margin-bottom:10px; }
+
+.total { font-size:18px; font-weight:bold; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>NordicTrend Store</h1>
+<p>Trending produkter</p>
+</header>
+
+<div class="cart" onclick="toggleCart()">🛒 Kurv (<span id="count">0</span>)</div>
+
+<div class="products" id="products"></div>
+
+<div class="cartPanel" id="cart">
+<h2>Din kurv</h2>
+<div id="cartItems"></div>
+
+<div class="total">Total: <span id="total">0</span> kr</div>
+
+<div class="checkout">
+<h3>Checkout</h3>
+<input id="name" placeholder="Fulde navn">
+<input id="email" placeholder="Email">
+<input id="address" placeholder="Adresse">
+<button onclick="checkout()">Bestil</button>
+</div>
+</div>
+
+<script>
+const products = [
+{name:"LED Strip Lights", price:149, img:"https://via.placeholder.com/300"},
+{name:"Wireless Earbuds", price:299, img:"https://via.placeholder.com/300"},
+{name:"Smart Watch", price:399, img:"https://via.placeholder.com/300"},
+{name:"Mini Projector", price:599, img:"https://via.placeholder.com/300"},
+{name:"Phone Tripod", price:129, img:"https://via.placeholder.com/300"},
+{name:"Magnetic Phone Holder", price:99, img:"https://via.placeholder.com/300"},
+{name:"Portable Blender", price:249, img:"https://via.placeholder.com/300"},
+{name:"Gaming RGB Mouse", price:179, img:"https://via.placeholder.com/300"},
+{name:"Laptop Cooling Pad", price:219, img:"https://via.placeholder.com/300"},
+{name:"USB-C Hub", price:199, img:"https://via.placeholder.com/300"}
+];
+
+let cart = [];
+
+function renderProducts() {
+const container = document.getElementById("products");
+container.innerHTML = products.map((p,i)=>`
+<div class="product">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>${p.price} kr</p>
+<button onclick="addToCart(${i})">Tilføj til kurv</button>
+</div>`).join('');
+}
+
+function addToCart(i){ cart.push(products[i]); updateCart(); }
+
+function updateCart(){
+const items = document.getElementById("cartItems"); items.innerHTML=""; let total=0;
+cart.forEach((p,index)=>{ items.innerHTML += `<p>${p.name} - ${p.price} kr <button onclick="removeFromCart(${index})">❌</button></p>`; total += p.price; });
+document.getElementById("total").innerText=total; document.getElementById("count").innerText=cart.length;
+}
+
+function removeFromCart(index){ cart.splice(index,1); updateCart(); }
+
+function toggleCart(){ document.getElementById("cart").classList.toggle("open"); }
+
+function checkout(){
+const name=document.getElementById("name").value.trim();
+const email=document.getElementById("email").value.trim();
+const address=document.getElementById("address").value.trim();
+if(!name||!email||!address){ alert("Udfyld venligst alle felter før bestilling!"); return; }
+alert(`Tak ${name}, din ordre er modtaget!`);
+cart=[]; updateCart(); toggleCart();
+}
+
+renderProducts();
+</script>
+</body>
+</html>
