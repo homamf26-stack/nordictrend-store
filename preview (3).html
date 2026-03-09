@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NordicTrend Store</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; background:#f8f8f8; color:#333; }
+header { background:#1f2937; color:white; text-align:center; padding:30px 20px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+header h1 { margin:0; font-size:2rem; }
+header p { margin:5px 0 0; font-size:1rem; }
+.products { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:25px; padding:40px 20px; }
+.product { background:white; border-radius:15px; overflow:hidden; text-align:center; transition: transform 0.2s, box-shadow 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+.product:hover { transform: translateY(-5px); box-shadow:0 6px 16px rgba(0,0,0,0.15); }
+.product img { width:100%; height:180px; object-fit:cover; }
+.product h3 { margin:10px 0 5px; font-size:1.1rem; }
+.product p { margin:0 0 10px; font-weight:bold; color:#1f2937; }
+button { background:#3b82f6; color:white; border:none; padding:10px 15px; margin-bottom:15px; border-radius:8px; cursor:pointer; transition: background 0.2s; }
+button:hover { background:#2563eb; }
+.cart { position:fixed; top:20px; right:20px; background:white; padding:12px 18px; border-radius:50px; box-shadow:0 3px 10px rgba(0,0,0,0.2); cursor:pointer; font-weight:bold; }
+.cartPanel { position:fixed; right:-400px; top:0; width:360px; height:100%; background:white; padding:20px; box-shadow:-4px 0 10px rgba(0,0,0,0.2); transition:0.3s; overflow-y:auto; }
+.cartPanel.open { right:0; }
+.cartPanel h2 { margin-top:0; border-bottom:1px solid #ccc; padding-bottom:10px; }
+.checkout input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+.total { font-size:18px; font-weight:bold; margin:15px 0; }
+.cartItemBtn { background:#ef4444; border:none; padding:3px 8px; border-radius:5px; color:white; cursor:pointer; font-size:0.8rem; margin-left:5px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>NordicTrend Store</h1>
+<p>De mest trendy produkter samlet ét sted</p>
+</header>
+
+<div class="cart" onclick="toggleCart()">🛒 Kurv (<span id="count">0</span>)</div>
+
+<div class="products" id="products"></div>
+
+<div class="cartPanel" id="cart">
+<h2>Din kurv</h2>
+<div id="cartItems"></div>
+<div class="total">Total: <span id="total">0</span> kr</div>
+<div class="checkout">
+<h3>Checkout</h3>
+<input id="name" placeholder="Fulde navn">
+<input id="email" placeholder="Email">
+<input id="address" placeholder="Adresse">
+<button onclick="checkout()">Bestil</button>
+</div>
+</div>
+
+<script>
+const products = [
+{name:"LED Strip Lights", price:249, img:"https://images.unsplash.com/photo-1611229257401-2d247f9145da?auto=format&fit=crop&w=300&q=80"},
+{name:"Wireless Earbuds", price:449, img:"https://images.unsplash.com/photo-1599658885861-5c7f9c0f84ab?auto=format&fit=crop&w=300&q=80"},
+{name:"Smart Watch", price:699, img:"https://images.unsplash.com/photo-1581276879432-15a430e6a1c0?auto=format&fit=crop&w=300&q=80"},
+{name:"Mini Projector", price:999, img:"https://images.unsplash.com/photo-1599697203153-7f12c986f1b5?auto=format&fit=crop&w=300&q=80"},
+{name:"Phone Tripod", price:229, img:"https://images.unsplash.com/photo-1579045189330-55a1c0b2e432?auto=format&fit=crop&w=300&q=80"},
+{name:"Magnetic Phone Holder", price:179, img:"https://images.unsplash.com/photo-1611647602765-3a71b0e2010c?auto=format&fit=crop&w=300&q=80"},
+{name:"Portable Blender", price:399, img:"https://images.unsplash.com/photo-1606813901667-10c1d9e5eeef?auto=format&fit=crop&w=300&q=80"},
+{name:"Gaming RGB Mouse", price:299, img:"https://images.unsplash.com/photo-1587202372775-cab6b23d0c59?auto=format&fit=crop&w=300&q=80"},
+{name:"Laptop Cooling Pad", price:369, img:"https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&w=300&q=80"},
+{name:"USB-C Hub", price:329, img:"https://images.unsplash.com/photo-1606812980581-7a21c8dcda64?auto=format&fit=crop&w=300&q=80"}
+];
+
+let cart = [];
+
+function renderProducts() {
+const container = document.getElementById("products");
+container.innerHTML = products.map((p,i)=>`
+<div class="product">
+<img src="${p.img}" alt="${p.name}">
+<h3>${p.name}</h3>
+<p>${p.price} kr</p>
+<button onclick="addToCart(${i})">Tilføj til kurv</button>
+</div>`).join('');
+}
+
+function addToCart(i){ cart.push(products[i]); updateCart(); }
+
+function updateCart(){
+const items = document.getElementById("cartItems"); items.innerHTML=""; let total=0;
+cart.forEach((p,index)=>{ items.innerHTML += `<p>${p.name} - ${p.price} kr <button class="cartItemBtn" onclick="removeFromCart(${index})">❌</button></p>`; total += p.price; });
+document.getElementById("total").innerText=total; document.getElementById("count").innerText=cart.length;
+}
+
+function removeFromCart(index){ cart.splice(index,1); updateCart(); }
+
+function toggleCart(){ document.getElementById("cart").classList.toggle("open"); }
+
+function checkout(){
+const name=document.getElementById("name").value.trim();
+const email=document.getElementById("email").value.trim();
+const address=document.getElementById("address").value.trim();
+if(!name||!email||!address){ alert("Udfyld venligst alle felter før bestilling!"); return; }
+alert(`Tak ${name}, din ordre er modtaget!`);
+cart=[]; updateCart(); toggleCart();
+}
+
+renderProducts();
+</script>
+</body>
+</html>
